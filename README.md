@@ -30,6 +30,7 @@ WYPopoverController is for the presentation of content in popover on iPhone / iP
 
 | Property                      | Type           | Default value (iOS 6)  | Default value (iOS 7)  |
 | ----------------------------- | -------------- | ---------------------: | ---------------------: |
+| adjustsTintColor              | `NSNumber`     |                   @YES |                   @YES |
 | tintColor                     | `UIColor`      |                  *nil* |                  *nil* |
 | arrowBase                     | `NSUInteger`   |                     42 |                     25 |
 | arrowHeight                   | `NSUInteger`   |                     18 |                     13 |
@@ -51,6 +52,10 @@ WYPopoverController is for the presentation of content in popover on iPhone / iP
 | minOuterCornerRadius          | `NSUInteger`   |  		            0 |  		             0 |
 | innerStrokeColor              | `UIColor`      |              #262c31ff |           #transparent |
 | outerStrokeColor              | `UIColor`      |              #262c31ff |           #transparent |
+
+##### Tint
+
+`adjustsTintColor` controls whether views behind the overlay have their tint color dimmed.
 
 ##### Arrow & Border
 
@@ -349,3 +354,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
