@@ -164,7 +164,7 @@ static char const * const UINavigationControllerEmbedInPopoverTagKey = "UINaviga
 - (BOOL)isEmbedInPopover
 {
     BOOL result = NO;
-    
+    //here is soem code I changed
     NSNumber *value = objc_getAssociatedObject(self, UINavigationControllerEmbedInPopoverTagKey);
     
     if (value)
