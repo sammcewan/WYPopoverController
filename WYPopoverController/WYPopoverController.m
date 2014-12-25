@@ -2814,6 +2814,9 @@ static WYPopoverTheme *defaultTheme_ = nil;
             
             [strongSelf->overlayView removeFromSuperview];
             strongSelf->overlayView = nil;
+
+            // inView is captured strongly in presentPopoverInRect:... method, so it needs to be released in dismiss method to avoid potential retain cycles
+            strongSelf->inView = nil;
         }
         
         if (completion)
