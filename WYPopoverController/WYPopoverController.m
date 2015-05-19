@@ -198,6 +198,11 @@ static char const * const UINavigationControllerEmbedInPopoverTagKey = "UINaviga
   swizzle = class_getInstanceMethod(self, @selector(sizzled_setViewControllers:animated:));
 
   method_exchangeImplementations(original, swizzle);
+    
+  original = class_getInstanceMethod(self, @selector(popViewControllerAnimated:));
+  swizzle = class_getInstanceMethod(self, @selector(sizzled_popViewControllerAnimated:));
+
+  method_exchangeImplementations(original, swizzle);
 }
 
 - (BOOL)wy_isEmbedInPopover {
@@ -264,6 +269,34 @@ static char const * const UINavigationControllerEmbedInPopoverTagKey = "UINaviga
 
   if (self.wy_isEmbedInPopover) {
     CGSize contentSize = [self contentSize:aViewController];
+    [self setContentSize:contentSize];
+  }
+}
+
+-(void)sizzled_popViewControllerAnimated:(BOOL)animated
+{
+  if(self.viewControllers.count <= 1)
+  {
+    //Let the system handle the special case
+    [self sizzled_popViewControllerAnimated:animated];
+    return;
+  }
+  
+  UIViewController *vc = [self.viewControllers objectAtIndex:self.viewControllers.count - 2];
+  if (self.wy_isEmbedInPopover) {
+#ifdef WY_BASE_SDK_7_ENABLED
+    if ([vc respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+      vc.edgesForExtendedLayout = UIRectEdgeNone;
+    }
+#endif
+    CGSize contentSize = [self contentSize:vc];
+    [self setContentSize:contentSize];
+  }
+  
+  [self sizzled_popViewControllerAnimated:animated];
+  
+  if (self.wy_isEmbedInPopover) {
+    CGSize contentSize = [self contentSize:vc];
     [self setContentSize:contentSize];
   }
 }
