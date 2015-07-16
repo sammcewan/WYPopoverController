@@ -1470,6 +1470,8 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
 
 static WYPopoverTheme *defaultTheme_ = nil;
 
+static dispatch_queue_t orientationSyncQueue;
+
 @synthesize popoverContentSize = popoverContentSize_;
 
 + (void)setDefaultTheme:(WYPopoverTheme *)aTheme {
@@ -1881,18 +1883,28 @@ static WYPopoverTheme *defaultTheme_ = nil;
     adjustTintDimmed();
     completionBlock(NO);
   }
+  
+  // Create queue to handle orientation changes
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    orientationSyncQueue = dispatch_queue_create(({
+      NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+      
+      [[bundleIdentifier stringByAppendingString:@".queue.orientationchanges.sync"] UTF8String];
+    }), DISPATCH_QUEUE_SERIAL);
+  });
 
   if (_isListeningNotifications == NO) {
     _isListeningNotifications = YES;
 
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didChangeStatusBarOrientation:)
+                                             selector:@selector(didChangeOrientation)
                                                  name:UIApplicationDidChangeStatusBarOrientationNotification
                                                object:nil];
 
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didChangeDeviceOrientation:)
+                                             selector:@selector(didChangeOrientation)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
 
@@ -2047,8 +2059,13 @@ static WYPopoverTheme *defaultTheme_ = nil;
 }
 
 - (void)positionPopover:(BOOL)aAnimated {
-  CGRect savedContainerFrame = _backgroundView.frame;
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  [self positionPopover:aAnimated
+                  frame:_backgroundView.frame
+            orientation:[UIApplication sharedApplication].statusBarOrientation];
+}
+
+- (void)positionPopover:(BOOL)aAnimated frame:(CGRect)frame orientation:(UIInterfaceOrientation)orientation {
+  CGRect savedContainerFrame = frame;
   CGSize contentViewSize = self.popoverContentSize;
   CGSize minContainerSize = WY_POPOVER_MIN_SIZE;
 
@@ -2704,7 +2721,7 @@ static BOOL compileUsingIOS8SDK() {
   return NO;
 }
 
-__unused static NSString* WYStringFromOrientation(NSInteger orientation) {
+static NSString* WYStringFromOrientation(UIInterfaceOrientation orientation) {
   NSString *result = @"Unknown";
 
   switch (orientation) {
@@ -2837,46 +2854,63 @@ static CGPoint WYPointRelativeToOrientation(CGPoint origin, CGSize size, UIInter
 
 #pragma mark Selectors
 
-- (void)didChangeStatusBarOrientation:(NSNotification *)notification {
-  _isInterfaceOrientationChanging = YES;
-}
+- (void)didChangeOrientation {
+  
+  [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+  
+  CGRect orientationFrame = _backgroundView.frame;
+  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+  
+  WY_LOG(@"Queue change to orientation %@ with frame %@", WYStringFromOrientation(orientation), NSStringFromCGRect(orientationFrame));
+  
+  dispatch_sync(orientationSyncQueue, ^{
+    
+    WY_LOG(@"Will change to orientation %@", WYStringFromOrientation(orientation));
+    
+    dispatch_queue_t uiQueue = dispatch_get_main_queue();
 
-- (void)didChangeDeviceOrientation:(NSNotification *)notification {
-  if (_isInterfaceOrientationChanging == NO) return;
+    if ([_viewController isKindOfClass:[UINavigationController class]]) {
+      UINavigationController* navigationController = (UINavigationController*)_viewController;
 
-  _isInterfaceOrientationChanging = NO;
-
-  if ([_viewController isKindOfClass:[UINavigationController class]]) {
-    UINavigationController* navigationController = (UINavigationController*)_viewController;
-
-    if (navigationController.navigationBarHidden == NO) {
-      navigationController.navigationBarHidden = YES;
-      navigationController.navigationBarHidden = NO;
+      if (navigationController.navigationBarHidden == NO) {
+        navigationController.navigationBarHidden = YES;
+        navigationController.navigationBarHidden = NO;
+      }
     }
-  }
 
-  if (_barButtonItem) {
-    _inView = [_barButtonItem valueForKey:@"view"];
-    _rect = _inView.bounds;
-  } else if ([_delegate respondsToSelector:@selector(popoverController:willRepositionPopoverToRect:inView:)]) {
-    CGRect anotherRect;
-    UIView *anotherInView;
+    if (_barButtonItem) {
+      _inView = [_barButtonItem valueForKey:@"view"];
+      _rect = _inView.bounds;
+    } else if ([_delegate respondsToSelector:@selector(popoverController:willRepositionPopoverToRect:inView:)]) {
+      __block CGRect anotherRect;
+      __block UIView *anotherInView;
 
-    [_delegate popoverController:self willRepositionPopoverToRect:&anotherRect inView:&anotherInView];
+      dispatch_sync(uiQueue, ^{
+        [_delegate popoverController:self willRepositionPopoverToRect:&anotherRect inView:&anotherInView];
+      });
 
 #pragma clang diagnostic push
 #pragma GCC diagnostic ignored "-Wtautological-pointer-compare"
-    if (&anotherRect != NULL) {
-      _rect = anotherRect;
-    }
+      if (&anotherRect != NULL) {
+        _rect = anotherRect;
+      }
 
-    if (&anotherInView != NULL) {
-      _inView = anotherInView;
-    }
+      if (&anotherInView != NULL) {
+        _inView = anotherInView;
+      }
 #pragma GCC diagnostic pop
-  }
-
-  [self positionPopover:NO];
+    }
+    
+    dispatch_sync(uiQueue, ^{
+      [self positionPopover:NO frame:orientationFrame orientation:orientation];
+      
+      [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    });
+    
+    
+    WY_LOG(@"Did change to orientation %@", WYStringFromOrientation(orientation));
+    
+  });
 }
 
 - (void)keyboardWillShow:(NSNotification *)notification {
