@@ -2863,7 +2863,7 @@ static CGPoint WYPointRelativeToOrientation(CGPoint origin, CGSize size, UIInter
   
   WY_LOG(@"Queue change to orientation %@ with frame %@", WYStringFromOrientation(orientation), NSStringFromCGRect(orientationFrame));
   
-  dispatch_sync(orientationSyncQueue, ^{
+  dispatch_async(orientationSyncQueue, ^{
     
     WY_LOG(@"Will change to orientation %@", WYStringFromOrientation(orientation));
     
