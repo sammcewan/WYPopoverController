@@ -1428,7 +1428,6 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
   BOOL                     _animated;
   BOOL                     _isListeningNotifications;
   BOOL                     _isObserverAdded;
-  BOOL                     _isInterfaceOrientationChanging;
   BOOL                     _ignoreOrientation;
   __weak UIBarButtonItem  *_barButtonItem;
 
