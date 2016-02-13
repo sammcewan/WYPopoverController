@@ -1,6 +1,8 @@
 WYPopoverController
 ===================
 
+*[This fork](https://github.com/sammcewan/WYPopoverController) is being actively maintained. The [original one](https://github.com/nicolaschengdev/WYPopoverController) seems to have been abandoned.*
+
 WYPopoverController is for the presentation of content in popover on iPhone / iPad devices. Very customizable.
 
 ### Screenshots
@@ -30,6 +32,7 @@ WYPopoverController is for the presentation of content in popover on iPhone / iP
 
 | Property                      | Type           | Default value (iOS 6)  | Default value (iOS 7)  |
 | ----------------------------- | -------------- | ---------------------: | ---------------------: |
+| usesRoundedArrow              | `BOOL`         |                     NO |                    YES |
 | tintColor                     | `UIColor`      |                  *nil* |                  *nil* |
 | arrowBase                     | `NSUInteger`   |                     42 |                     25 |
 | arrowHeight                   | `NSUInteger`   |                     18 |                     13 |
@@ -51,8 +54,11 @@ WYPopoverController is for the presentation of content in popover on iPhone / iP
 | minOuterCornerRadius          | `NSUInteger`   |  		            0 |  		             0 |
 | innerStrokeColor              | `UIColor`      |              #262c31ff |           #transparent |
 | outerStrokeColor              | `UIColor`      |              #262c31ff |           #transparent |
+| dimsBackgroundViewsTintColor  | `BOOL`         |                    YES |                    YES |
 
 ##### Arrow & Border
+
+`usesRoundedArrow` (enabled by default) produces a nicely curved arrow. Set it to `NO` to revert to the old pointy arrow.
 
 ![](https://raw.github.com/nicolaschengdev/WYPopoverController/master/screenshots/appearance/small/wypopover_arrowbase.png "arrowBase: 42") , ![](https://raw.github.com/nicolaschengdev/WYPopoverController/master/screenshots/appearance/small/wypopover_arrowheight.png "arrowHeight: 18") , ![](https://raw.github.com/nicolaschengdev/WYPopoverController/master/screenshots/appearance/small/wypopover_borderwidth.png "borderWidth: 6")
 
@@ -75,6 +81,10 @@ WYPopoverController is for the presentation of content in popover on iPhone / iP
 ##### Inner
 
 ![](https://raw.github.com/nicolaschengdev/WYPopoverController/master/screenshots/appearance/small/wypopover_innershadowcolor.png "innerShadowColor: #c3045e, innerShadowOffset: {0, 1}, innerShadowBlurRadius: 2") , ![](https://raw.github.com/nicolaschengdev/WYPopoverController/master/screenshots/appearance/small/wypopover_innershadowoffset_0--1.png "innerShadowColor: #c3045e, innerShadowOffset: {0, -1}, innerShadowBlurRadius: 2") , ![](https://raw.github.com/nicolaschengdev/WYPopoverController/master/screenshots/appearance/small/wypopover_innershadowblurradius_0.png "innerShadowColor: #c3045e, innerShadowOffset: {0, 1}, innerShadowBlurRadius: 0")
+
+##### Tint
+
+`dimsBackgroundViewsTintColor` controls whether views behind the overlay have their tint color dimmed.
 
 ### Works like UIPopoverController
 
@@ -150,20 +160,20 @@ WYPopoverController uses ARC.
 
 #### CocoaPods
 
-Add this line `pod 'WYPopoverController', '~> 0.2.0'` to your PodFile.
+Add this line `pod 'WYPopoverController', '~> 0.3.7'` to your PodFile.
 
 Your PodFile should look like :
 
 ```Ruby
 platform :ios, '6.0'
-pod 'WYPopoverController', '~> 0.2.2'
+pod 'WYPopoverController', '~> 0.3.7'
 ```
 
 To use the `master` branch of the repo :
 
 ```Ruby
 platform :ios, '6.0'
-pod 'WYPopoverController', :git => 'https://github.com/nicolaschengdev/WYPopoverController.git'
+pod 'WYPopoverController', :git => 'https://github.com/sammcewan/WYPopoverController.git'
 ```
 
 #### Manually
@@ -327,14 +337,14 @@ Situations when handling is required:
 
 ---
 
-A brief summary of each WYPopoverController release can be found on the [wiki](https://github.com/nicolaschengdev/WYPopoverController/wiki/Change-logs).
+A brief summary of each WYPopoverController release can be found on the [wiki](https://github.com/sammcewan/WYPopoverController/wiki/Change-logs).
 
 ### Contact
 
 ---
 
-* [@mikl_jeo](https://twitter.com/mikl_jeo) on Twitter
-* [@nicolaschengdev](https://github.com/nicolaschengdev) on Github
+* ~~[@mikl_jeo](https://twitter.com/mikl_jeo) on Twitter~~
+* [@vitalys](https://github.com/vitalys) on Github
 
 ### License
 
@@ -349,3 +359,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
