@@ -1,5 +1,5 @@
 /*
- Version 0.2.2
+ Version 0.2.3
  
  WYPopoverController is available under the MIT license.
  
@@ -867,17 +867,17 @@ static CGFloat edgeSizeFromCornerRadius(CGFloat cornerRadius) {
 
 - (BOOL)isPassthroughView:(UIView *)view
 {
-	if (view == nil)
+    if (view == nil)
     {
-		return NO;
-	}
-	
-	if ([self.passthroughViews containsObject:view])
+        return NO;
+    }
+    
+    if ([self.passthroughViews containsObject:view])
     {
-		return YES;
-	}
-	
-	return [self isPassthroughView:view.superview];
+        return YES;
+    }
+    
+    return [self isPassthroughView:view.superview];
 }
 
 #pragma mark - UIAccessibility
@@ -1673,7 +1673,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
         theme.innerCornerRadius = appearance.innerCornerRadius;
         theme.viewContentInsets = appearance.viewContentInsets;
         theme.overlayColor = appearance.overlayColor;
-
+        
         themeIsUpdating = NO;
         themeUpdatesEnabled = YES;
         
@@ -1711,8 +1711,8 @@ static WYPopoverTheme *defaultTheme_ = nil;
     
     NSArray *keypaths = [theme observableKeypaths];
     for (NSString *keypath in keypaths) {
-		[theme addObserver:self forKeyPath:keypath options:NSKeyValueObservingOptionNew context:NULL];
-	}
+        [theme addObserver:self forKeyPath:keypath options:NSKeyValueObservingOptionNew context:NULL];
+    }
 }
 
 - (void)unregisterTheme
@@ -1986,6 +1986,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
             CGAffineTransform startTransform = [self transformForArrowDirection:backgroundView.arrowDirection];
             backgroundView.transform = startTransform;
         }
+        backgroundView.frame = CGRectMake(backgroundView.frame.origin.x, overlayView.frame.size.height, backgroundView.frame.size.width, backgroundView.frame.size.height);
         
         [UIView animateWithDuration:animationDuration animations:^{
             __typeof__(self) strongSelf = weakSelf;
@@ -1995,6 +1996,11 @@ static WYPopoverTheme *defaultTheme_ = nil;
                 strongSelf->overlayView.alpha = 1;
                 strongSelf->backgroundView.alpha = 1;
                 strongSelf->backgroundView.transform = endTransform;
+                if ((options & WYPopoverAnimationOptionSlideFromBottom) == WYPopoverAnimationOptionSlideFromBottom)
+                {
+                    strongSelf->backgroundView.frame = CGRectMake(strongSelf->backgroundView.frame.origin.x, strongSelf->overlayView.frame.size.height - strongSelf->viewController.view.frame.size.height, strongSelf->backgroundView.frame.size.width, strongSelf->backgroundView.frame.size.height);
+                }
+                
             }
         } completion:^(BOOL finished) {
             completionBlock(YES);
@@ -2123,7 +2129,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
     CGAffineTransform transform = backgroundView.transform;
     
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-
+    
     CGSize containerViewSize = backgroundView.frame.size;
     
     if (backgroundView.arrowHeight > 0)
@@ -2503,7 +2509,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
     containerFrame = backgroundView.frame;
     
     containerFrame.origin = WYPointRelativeToOrientation(containerOrigin, containerFrame.size, orientation);
-
+    
     if (aAnimated == YES) {
         backgroundView.frame = savedContainerFrame;
         __weak __typeof__(self) weakSelf = self;
@@ -2678,6 +2684,11 @@ static WYPopoverTheme *defaultTheme_ = nil;
                     CGAffineTransform endTransform = [self transformForArrowDirection:strongSelf->backgroundView.arrowDirection];
                     strongSelf->backgroundView.transform = endTransform;
                 }
+                
+                if ((style & WYPopoverAnimationOptionSlideFromBottom) == WYPopoverAnimationOptionSlideFromBottom)
+                {
+                    strongSelf->backgroundView.frame = CGRectMake(strongSelf->backgroundView.frame.origin.x, strongSelf->overlayView.frame.size.height, strongSelf->backgroundView.frame.size.width, strongSelf->backgroundView.frame.size.height);
+                }
             }
         } completion:^(BOOL finished) {
             completionBlock();
@@ -2718,17 +2729,17 @@ static WYPopoverTheme *defaultTheme_ = nil;
     
     //if (!isTouched)
     //{
-        BOOL shouldDismiss = !viewController.modalInPopover;
-        
-        if (shouldDismiss && delegate && [delegate respondsToSelector:@selector(popoverControllerShouldDismissPopover:)])
-        {
-            shouldDismiss = [delegate popoverControllerShouldDismissPopover:self];
-        }
-        
-        if (shouldDismiss)
-        {
-            [self dismissPopoverAnimated:animated options:options completion:nil callDelegate:YES];
-        }
+    BOOL shouldDismiss = !viewController.modalInPopover;
+    
+    if (shouldDismiss && delegate && [delegate respondsToSelector:@selector(popoverControllerShouldDismissPopover:)])
+    {
+        shouldDismiss = [delegate popoverControllerShouldDismissPopover:self];
+    }
+    
+    if (shouldDismiss)
+    {
+        [self dismissPopoverAnimated:animated options:options completion:nil callDelegate:YES];
+    }
     //}
 }
 
