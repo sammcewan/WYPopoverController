@@ -2883,7 +2883,16 @@ static CGPoint WYPointRelativeToOrientation(CGPoint origin, CGSize size, UIInter
   //UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
   //WY_LOG(@"orientation = %@", WYStringFromOrientation(orientation));
   //WY_LOG(@"WYKeyboardListener.rect = %@", NSStringFromCGRect(WYKeyboardListener.rect));
-
+  NSDictionary *userInfo = [notification userInfo];
+  CGRect keyboardFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGRect keyboard = [_inView convertRect:keyboardFrame fromView:_inView.window];
+  CGFloat height = _inView.frame.size.height;
+    
+  if ((keyboard.origin.y + keyboard.size.height) > height) {
+    //Physical keyboard
+    return;
+  }
+    
   BOOL shouldIgnore = NO;
 
   if (_delegate && [_delegate respondsToSelector:@selector(popoverControllerShouldIgnoreKeyboardBounds:)]) {
