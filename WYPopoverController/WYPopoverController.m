@@ -45,6 +45,13 @@
 
 #define WY_IS_IOS_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
+#if !defined(WY_APP_EXTENSIONS)
+#define WY_USER_INTERFACE_ORIENTATION          [[UIApplication sharedApplication] statusBarOrientation]
+#else
+#define WY_USER_INTERFACE_ORIENTATION          UIInterfaceOrientationPortrait
+#endif
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface WYKeyboardListener : NSObject
@@ -1688,6 +1695,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
 #pragma clang diagnostic pop
   }
 
+#if !defined(WY_APP_EXTENSIONS)
   if (CGSizeEqualToSize(result, CGSizeZero)) {
     CGSize windowSize = [[UIApplication sharedApplication] keyWindow].bounds.size;
 
@@ -1695,6 +1703,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
     result = CGSizeMake(UIInterfaceOrientationIsPortrait(orientation) ? windowSize.width : windowSize.height, UIInterfaceOrientationIsLandscape(orientation) ? windowSize.width : windowSize.height);
   }
+#endif
 
   return result;
 }
@@ -1776,12 +1785,14 @@ static WYPopoverTheme *defaultTheme_ = nil;
   _animated = aAnimated;
   options = aOptions;
 
+#if !defined(WY_APP_EXTENSIONS)
   if (!_inView) {
     _inView = [UIApplication sharedApplication].keyWindow.rootViewController.view;
     if (CGRectIsEmpty(_rect)) {
       _rect = CGRectMake((int)_inView.bounds.size.width / 2 - 5, (int)_inView.bounds.size.height / 2 - 5, 10, 10);
     }
   }
+#endif
 
   CGSize contentViewSize = self.popoverContentSize;
 
@@ -1988,7 +1999,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
 - (CGAffineTransform)transformForArrowDirection:(WYPopoverArrowDirection)arrowDirection {
   CGAffineTransform transform = _backgroundView.transform;
 
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = WY_USER_INTERFACE_ORIENTATION;
 
   CGSize containerViewSize = _backgroundView.frame.size;
 
@@ -2050,7 +2061,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
 - (void)positionPopover:(BOOL)aAnimated {
   CGRect savedContainerFrame = _backgroundView.frame;
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = WY_USER_INTERFACE_ORIENTATION;
   CGSize contentViewSize = self.popoverContentSize;
   CGSize minContainerSize = WY_POPOVER_MIN_SIZE;
 
@@ -2092,7 +2103,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
   viewFrame = [_inView convertRect:_rect toView:nil];
 
-  viewFrame = WYRectInWindowBounds(viewFrame, orientation);
+  viewFrame = WYRectInWindowBounds(_inView.window, viewFrame, orientation);
 
   minX = _popoverLayoutMargins.left;
   maxX = overlayWidth - _popoverLayoutMargins.right;
@@ -2343,7 +2354,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
   containerFrame = _backgroundView.frame;
 
-  containerFrame.origin = WYPointRelativeToOrientation(containerOrigin, containerFrame.size, orientation);
+  containerFrame.origin = WYPointRelativeToOrientation(_backgroundView.window, containerOrigin, containerFrame.size, orientation);
 
   if (aAnimated == YES && !self.implicitAnimationsDisabled) {
     _backgroundView.frame = savedContainerFrame;
@@ -2639,10 +2650,10 @@ static WYPopoverTheme *defaultTheme_ = nil;
                inView:(UIView *)aView
           arrowHeight:(float)arrowHeight
        arrowDirection:(WYPopoverArrowDirection)arrowDirection {
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = WY_USER_INTERFACE_ORIENTATION;
 
   CGRect viewFrame = [aView convertRect:aRect toView:nil];
-  viewFrame = WYRectInWindowBounds(viewFrame, orientation);
+  viewFrame = WYRectInWindowBounds(aView.window, viewFrame, orientation);
 
   float minX, maxX, minY, maxY = 0;
 
@@ -2730,6 +2741,7 @@ __unused static NSString* WYStringFromOrientation(NSInteger orientation) {
 }
 
 static float WYStatusBarHeight() {
+#if !defined(WY_APP_EXTENSIONS)
   if (compileUsingIOS8SDK() && [[NSProcessInfo processInfo] respondsToSelector:@selector(operatingSystemVersion)]) {
     CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
     return statusBarFrame.size.height;
@@ -2746,6 +2758,9 @@ static float WYStatusBarHeight() {
 
     return statusBarHeight;
   }
+#else
+  return 0.0f;
+#endif
 }
 
 static float WYInterfaceOrientationAngleOfOrientation(UIInterfaceOrientation orientation) {
@@ -2772,9 +2787,9 @@ static float WYInterfaceOrientationAngleOfOrientation(UIInterfaceOrientation ori
   return angle;
 }
 
-static CGRect WYRectInWindowBounds(CGRect rect, UIInterfaceOrientation orientation) {
+static CGRect WYRectInWindowBounds(UIWindow *window, CGRect rect, UIInterfaceOrientation orientation) {
 
-  UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+  UIWindow *keyWindow = window;
 
   float windowWidth = keyWindow.bounds.size.width;
   float windowHeight = keyWindow.bounds.size.height;
@@ -2808,9 +2823,9 @@ static CGRect WYRectInWindowBounds(CGRect rect, UIInterfaceOrientation orientati
   return result;
 }
 
-static CGPoint WYPointRelativeToOrientation(CGPoint origin, CGSize size, UIInterfaceOrientation orientation) {
+static CGPoint WYPointRelativeToOrientation(UIWindow *window, CGPoint origin, CGSize size, UIInterfaceOrientation orientation) {
 
-  UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+  UIWindow *keyWindow = window;
 
   float windowWidth = keyWindow.bounds.size.width;
   float windowHeight = keyWindow.bounds.size.height;
