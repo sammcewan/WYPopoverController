@@ -1762,6 +1762,10 @@ static WYPopoverTheme *defaultTheme_ = nil;
                     completion:nil];
 }
 
+- (UIWindow *)getWindow {
+    return _inView.window == nil ? [[[UIApplication sharedApplication] delegate] window] : _inView.window;
+}
+
 - (void)presentPopoverFromRect:(CGRect)aRect
                         inView:(UIView *)aView
       permittedArrowDirections:(WYPopoverArrowDirection)aArrowDirections
@@ -1786,7 +1790,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
   CGSize contentViewSize = self.popoverContentSize;
 
   if (_overlayView == nil) {
-    _overlayView = [[WYPopoverOverlayView alloc] initWithFrame:_inView.window.bounds];
+    _overlayView = [[WYPopoverOverlayView alloc] initWithFrame:[self getWindow].bounds];
     _overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _overlayView.autoresizesSubviews = NO;
     _overlayView.delegate = self;
@@ -1808,8 +1812,8 @@ static WYPopoverTheme *defaultTheme_ = nil;
       [_backgroundView addGestureRecognizer:tap];
     }
 
-    [_inView.window addSubview:_backgroundView];
-    [_inView.window insertSubview:_overlayView belowSubview:_backgroundView];
+    [[self getWindow] addSubview:_backgroundView];
+    [[self getWindow] insertSubview:_overlayView belowSubview:_backgroundView];
   }
 
   [self updateThemeUI];
@@ -1842,8 +1846,8 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
   void (^adjustTintDimmed)() = ^() {
 #ifdef WY_BASE_SDK_7_ENABLED
-    if (_backgroundView.dimsBackgroundViewsTintColor && [_inView.window respondsToSelector:@selector(setTintAdjustmentMode:)]) {
-      for (UIView *subview in _inView.window.subviews) {
+    if (_backgroundView.dimsBackgroundViewsTintColor && [[self getWindow] respondsToSelector:@selector(setTintAdjustmentMode:)]) {
+      for (UIView *subview in [self getWindow].subviews) {
         if (subview != _backgroundView) {
           [subview setTintAdjustmentMode:UIViewTintAdjustmentModeDimmed];
         }
@@ -2087,7 +2091,7 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
   WYPopoverArrowDirection arrowDirection = _permittedArrowDirections;
 
-  _overlayView.bounds = _inView.window.bounds;
+  _overlayView.bounds = [self getWindow].bounds;
   _backgroundView.transform = CGAffineTransformIdentity;
 
   viewFrame = [_inView convertRect:_rect toView:nil];
@@ -2402,8 +2406,8 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
   void (^adjustTintAutomatic)() = ^() {
 #ifdef WY_BASE_SDK_7_ENABLED
-    if ([_inView.window respondsToSelector:@selector(setTintAdjustmentMode:)]) {
-      for (UIView *subview in _inView.window.subviews) {
+    if ([[self getWindow] respondsToSelector:@selector(setTintAdjustmentMode:)]) {
+      for (UIView *subview in [self getWindow].subviews) {
         if (subview != _backgroundView) {
           [subview setTintAdjustmentMode:UIViewTintAdjustmentModeAutomatic];
         }
