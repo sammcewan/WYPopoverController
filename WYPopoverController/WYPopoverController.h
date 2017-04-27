@@ -94,6 +94,8 @@ typedef NS_OPTIONS(NSUInteger, WYPopoverAnimationOptions) {
 
 @property(nonatomic) CGFloat preferredAlpha                                 UI_APPEARANCE_SELECTOR;
 
+@property (nonatomic, copy) void (^drawArrowBlock)(CGPoint a, CGPoint t, CGPoint b);
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +116,8 @@ typedef NS_OPTIONS(NSUInteger, WYPopoverAnimationOptions) {
 @property (nonatomic, assign) BOOL                              implicitAnimationsDisabled;
 
 @property (nonatomic, strong) WYPopoverTheme                   *theme;
+
+@property (nonatomic, strong) NSArray                          *directionPriority;
 
 @property (nonatomic, copy) void (^dismissCompletionBlock)(WYPopoverController *dimissedController);
 
@@ -270,6 +274,8 @@ typedef NS_OPTIONS(NSUInteger, WYPopoverAnimationOptions) {
 @property (nonatomic, strong) UIColor *overlayColor;
 
 @property (nonatomic) CGFloat preferredAlpha;
+
+@property (nonatomic, copy) void (^drawArrowBlock)(CGPoint a, CGPoint t, CGPoint b);
 
 + (instancetype)theme;
 + (instancetype)themeForIOS6;

@@ -1070,8 +1070,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x - roundedArrowControlLength, arrowBasePointB.y,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL, CGRectGetMaxX(outerRect), CGRectGetMinY(outerRect),
@@ -1108,8 +1113,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x + roundedArrowControlLength, arrowBasePointA.y,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL,
@@ -1150,8 +1160,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x, arrowBasePointB.y + roundedArrowControlLength,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL,
@@ -1192,8 +1207,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x, arrowBasePointB.y - roundedArrowControlLength,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL,
@@ -1635,6 +1655,9 @@ static WYPopoverTheme *defaultTheme_ = nil;
     _backgroundView.innerCornerRadius = _theme.innerCornerRadius;
     _backgroundView.viewContentInsets = _theme.viewContentInsets;
     _backgroundView.preferredAlpha = _theme.preferredAlpha;
+    
+    _backgroundView.drawArrowBlock = _theme.drawArrowBlock;
+    
     [_backgroundView setNeedsDisplay];
   }
 
@@ -2589,12 +2612,32 @@ static WYPopoverTheme *defaultTheme_ = nil;
     areas = [NSMutableArray arrayWithArray:[areas objectsAtIndexes:indexes]];
   }
 
+  __weak __typeof__(self) weakSelf = self;
+  CGFloat (^humanFactor)(WYPopoverArea *) = ^CGFloat(WYPopoverArea *area) {
+    __typeof__(self) strongSelf = weakSelf;
+    
+    if (strongSelf.directionPriority.count > 0) {
+      NSUInteger index = [weakSelf.directionPriority indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSNumber *directin = obj;
+        if (area.arrowDirection == directin.integerValue) {
+          *stop = YES;
+          return YES;
+        }
+        return NO;
+      }];
+      if (index != NSNotFound) {
+        return 1 + 4 / (index + 1) * 0.2;
+      }
+    }
+    return 1.0;
+  };
+  
   [areas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
     WYPopoverArea *area1 = (WYPopoverArea *)obj1;
     WYPopoverArea *area2 = (WYPopoverArea *)obj2;
 
-    float val1 = area1.value;
-    float val2 = area2.value;
+    float val1 = area1.value * humanFactor(area1);
+    float val2 = area2.value * humanFactor(area2);
 
     NSComparisonResult result = NSOrderedSame;
 

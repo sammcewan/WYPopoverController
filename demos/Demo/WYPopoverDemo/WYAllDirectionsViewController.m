@@ -122,7 +122,8 @@
         settingsPopoverController.passthroughViews = @[btn];
         settingsPopoverController.popoverLayoutMargins = UIEdgeInsetsMake(10, 10, 10, 10);
         settingsPopoverController.wantsDefaultContentAppearance = NO;
-        
+        settingsPopoverController.directionPriority = @[@(WYPopoverArrowDirectionDown)];
+      
         if (sender == dialogButton)
         {
             [settingsPopoverController presentPopoverAsDialogAnimated:YES
