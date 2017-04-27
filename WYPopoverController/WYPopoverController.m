@@ -2612,12 +2612,32 @@ static WYPopoverTheme *defaultTheme_ = nil;
     areas = [NSMutableArray arrayWithArray:[areas objectsAtIndexes:indexes]];
   }
 
+  __weak __typeof__(self) weakSelf = self;
+  CGFloat (^humanFactor)(WYPopoverArea *) = ^CGFloat(WYPopoverArea *area) {
+    __typeof__(self) strongSelf = weakSelf;
+    
+    if (strongSelf.directionPriority.count > 0) {
+      NSUInteger index = [weakSelf.directionPriority indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSNumber *directin = obj;
+        if (area.arrowDirection == directin.integerValue) {
+          *stop = YES;
+          return YES;
+        }
+        return NO;
+      }];
+      if (index != NSNotFound) {
+        return 1 + 4 / (index + 1) * 0.2;
+      }
+    }
+    return 1.0;
+  };
+  
   [areas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
     WYPopoverArea *area1 = (WYPopoverArea *)obj1;
     WYPopoverArea *area2 = (WYPopoverArea *)obj2;
 
-    float val1 = area1.value;
-    float val2 = area2.value;
+    float val1 = area1.value * humanFactor(area1);
+    float val2 = area2.value * humanFactor(area2);
 
     NSComparisonResult result = NSOrderedSame;
 

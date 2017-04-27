@@ -117,6 +117,8 @@ typedef NS_OPTIONS(NSUInteger, WYPopoverAnimationOptions) {
 
 @property (nonatomic, strong) WYPopoverTheme                   *theme;
 
+@property (nonatomic, strong) NSArray                          *directionPriority;
+
 @property (nonatomic, copy) void (^dismissCompletionBlock)(WYPopoverController *dimissedController);
 
 + (void)setDefaultTheme:(WYPopoverTheme *)theme;
