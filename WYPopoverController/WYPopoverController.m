@@ -1070,8 +1070,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x - roundedArrowControlLength, arrowBasePointB.y,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL, CGRectGetMaxX(outerRect), CGRectGetMinY(outerRect),
@@ -1108,8 +1113,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x + roundedArrowControlLength, arrowBasePointA.y,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL,
@@ -1150,8 +1160,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x, arrowBasePointB.y + roundedArrowControlLength,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL,
@@ -1192,8 +1207,13 @@ static float edgeSizeFromCornerRadius(float cornerRadius) {
                               arrowBasePointB.x, arrowBasePointB.y - roundedArrowControlLength,
                               arrowBasePointB.x, arrowBasePointB.y);
       } else {
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
-        CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        if (_drawArrowBlock) {
+          _drawArrowBlock(arrowBasePointA, arrowTipPoint, arrowBasePointB);
+        }
+        else {
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowTipPoint.x, arrowTipPoint.y);
+          CGPathAddLineToPoint(outerPathRef, NULL, arrowBasePointB.x, arrowBasePointB.y);
+        }
       }
 
       CGPathAddArcToPoint(outerPathRef, NULL,
@@ -1635,6 +1655,9 @@ static WYPopoverTheme *defaultTheme_ = nil;
     _backgroundView.innerCornerRadius = _theme.innerCornerRadius;
     _backgroundView.viewContentInsets = _theme.viewContentInsets;
     _backgroundView.preferredAlpha = _theme.preferredAlpha;
+    
+    _backgroundView.drawArrowBlock = _theme.drawArrowBlock;
+    
     [_backgroundView setNeedsDisplay];
   }
 
