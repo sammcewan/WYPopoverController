@@ -1,6 +1,8 @@
 WYPopoverController
 ===================
 
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+
 *[This fork](https://github.com/sammcewan/WYPopoverController) is being actively maintained. The [original one](https://github.com/nicolaschengdev/WYPopoverController) seems to have been abandoned.*
 
 WYPopoverController is for the presentation of content in popover on iPhone / iPad devices. Very customizable.
