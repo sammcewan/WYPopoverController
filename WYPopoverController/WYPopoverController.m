@@ -31,6 +31,10 @@
 #define WY_BASE_SDK_7_ENABLED
 #endif
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+#define WY_BASE_SDK_8_ENABLED
+#endif
+
 #ifdef DEBUG
 #define WY_LOG(fmt, ...)		NSLog((@"%s (%d) : " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
@@ -1524,8 +1528,6 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
     themeUpdatesEnabled = NO;
 
-    [self setTheme:[WYPopoverController defaultTheme]];
-
     themeIsUpdating = YES;
 
     WYPopoverBackgroundView *appearance = [WYPopoverBackgroundView appearance];
@@ -1556,7 +1558,8 @@ static WYPopoverTheme *defaultTheme_ = nil;
     theme.viewContentInsets = appearance.viewContentInsets;
     theme.overlayColor = appearance.overlayColor;
     theme.preferredAlpha = appearance.preferredAlpha;
-    _theme = theme;
+    
+    [self setTheme:theme];
 
     themeIsUpdating = NO;
     themeUpdatesEnabled = YES;
@@ -2094,10 +2097,17 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
   viewFrame = WYRectInWindowBounds(viewFrame, orientation);
 
+#ifdef WY_BASE_SDK_8_ENABLED
+  minX = MAX(_popoverLayoutMargins.left, _inView.layoutMargins.left);
+  maxX = overlayWidth - MAX(_popoverLayoutMargins.right, _inView.layoutMargins.right);
+  minY = MAX(_popoverLayoutMargins.top, _inView.layoutMargins.top);
+  maxY = overlayHeight - MAX(_popoverLayoutMargins.bottom, _inView.layoutMargins.bottom) - keyboardHeight;
+#else
   minX = _popoverLayoutMargins.left;
   maxX = overlayWidth - _popoverLayoutMargins.right;
   minY = WYStatusBarHeight() + _popoverLayoutMargins.top;
   maxY = overlayHeight - _popoverLayoutMargins.bottom - keyboardHeight;
+#endif
 
   // Which direction ?
   //
@@ -2664,10 +2674,17 @@ static WYPopoverTheme *defaultTheme_ = nil;
     }
   }
 
+#ifdef WY_BASE_SDK_8_ENABLED
+  minX = MAX(_popoverLayoutMargins.left, _inView.layoutMargins.left);
+  maxX = overlayWidth - MAX(_popoverLayoutMargins.right, _inView.layoutMargins.right);
+  minY = MAX(_popoverLayoutMargins.top, _inView.layoutMargins.top);
+  maxY = overlayHeight - MAX(_popoverLayoutMargins.bottom, _inView.layoutMargins.bottom) - keyboardHeight;
+#else
   minX = _popoverLayoutMargins.left;
   maxX = overlayWidth - _popoverLayoutMargins.right;
   minY = WYStatusBarHeight() + _popoverLayoutMargins.top;
   maxY = overlayHeight - _popoverLayoutMargins.bottom - keyboardHeight;
+#endif
 
   CGSize result = CGSizeZero;
 
