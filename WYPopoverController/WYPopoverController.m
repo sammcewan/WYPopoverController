@@ -1528,8 +1528,6 @@ static WYPopoverTheme *defaultTheme_ = nil;
 
     themeUpdatesEnabled = NO;
 
-    [self setTheme:[WYPopoverController defaultTheme]];
-
     themeIsUpdating = YES;
 
     WYPopoverBackgroundView *appearance = [WYPopoverBackgroundView appearance];
@@ -1560,7 +1558,8 @@ static WYPopoverTheme *defaultTheme_ = nil;
     theme.viewContentInsets = appearance.viewContentInsets;
     theme.overlayColor = appearance.overlayColor;
     theme.preferredAlpha = appearance.preferredAlpha;
-    _theme = theme;
+    
+    [self setTheme:theme];
 
     themeIsUpdating = NO;
     themeUpdatesEnabled = YES;
